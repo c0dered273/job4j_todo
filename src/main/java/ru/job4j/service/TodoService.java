@@ -1,4 +1,4 @@
-package ru.job4j.util;
+package ru.job4j.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,12 +10,16 @@ import ru.job4j.model.Item;
 
 import java.util.List;
 
-public class ItemUtil {
-    private static final Logger logger = LoggerFactory.getLogger(ItemUtil.class);
+public class TodoService {
+    private static final Logger logger = LoggerFactory.getLogger(TodoService.class);
+    private final ItemDao itemDao;
 
-    public static String getAllItemsJsonString() {
+    public TodoService(ItemDao itemDao) {
+        this.itemDao = itemDao;
+    }
+
+    public String getAllItemsJsonString() {
         String result = "";
-        ItemDao itemDao = new ItemDao();
         ObjectMapper mapper = new ObjectMapper();
         List<Item> allItems;
         try {

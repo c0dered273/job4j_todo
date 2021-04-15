@@ -8,12 +8,12 @@
     </description>
 
     <servlet>
-        <servlet-name>ToDoItemServlet</servlet-name>
-        <servlet-class>ru.job4j.servlet.ToDoItemServlet</servlet-class>
+        <servlet-name>TodoServlet</servlet-name>
+        <servlet-class>ru.job4j.servlet.TodoServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>ToDoItemServlet</servlet-name>
+        <servlet-name>TodoServlet</servlet-name>
         <url-pattern>/item</url-pattern>
     </servlet-mapping>
 
