@@ -15,22 +15,63 @@
     <title>TODO app</title>
 </head>
 <body>
+<div class="container">
+    <table class="table" id="todoTable">
+        <caption></caption>
+        <thead>
+        <tr>
+            <th scope="col">Done</th>
+            <th scope="col">Description</th>
+            <th scope="col">Date</th>
+        </tr>
+        </thead>
+        <tbody id="todoBody">
+        </tbody>
+    </table>
+</div>
 
 <script>
     $(document).ready(function () {
-        console.log(getAllItems());
+        fillTodoList();
     });
 
-    function getAllItems() {
-        let itemList = [];
+    $(document).ajaxComplete(function() {
+        $(".form-check-input").change(function () {
+            if (this.checked) {
+                $.ajax({
+                    url: 'http://localhost:8080/todo/item?action=setDone&id=' + $(this).data("id")
+                });
+            } else {
+                $.ajax({
+                    url: 'http://localhost:8080/todo/item?action=setUndone&id=' + $(this).data("id")
+                });
+            }
+            location.reload();
+        });
+    });
+
+    function fillTodoList() {
         let url = "http://localhost:8080/todo/item?action=getAll";
         $.getJSON(url, function (data) {
-            $.each(data, function () {
-                itemList.push(this);
+            $('#todoBody').empty();
+            $.each(data, function (index, value) {
+                let checkBox = "<div class=\"form-check\">" +
+                        "<input class=\"form-check-input position-static\" type=\"checkbox\" " +
+                        "id=\"checkbox" + value.id + "\" data-id=\"" + value.id + "\" value=\"doneVal\">" +
+                        "</div>";
+                let tableRow = "<tr><" +
+                    "td>" + checkBox + "</td>" +
+                    "<td id='desc" + value.id + "'>" + value.description + "</td>" +
+                    "<td id='date" + value.id + "'>" + new Date(value.created).toDateString() + "</td>" +
+                    "</tr>";
+                $('#todoBody').append(tableRow);
+                if (value.done) {
+                    $('#checkbox' + value.id).prop('checked', true);
+                    $('#desc' + value.id).wrapInner('<s></s>');
+                    $('#date' + value.id).wrapInner('<s></s>');
+                }
             });
         });
-        console.log(itemList);
-        return itemList;
     }
 </script>
 </body>

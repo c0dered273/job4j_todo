@@ -66,7 +66,7 @@ public class ItemDaoImpl implements ItemDao {
         Transaction tx = null;
         try (Session session = sf.openSession()) {
             tx = session.beginTransaction();
-            result = session.createQuery("from ru.job4j.model.Item", Item.class).list();
+            result = session.createQuery("from ru.job4j.model.Item i order by i.done", Item.class).list();
             tx.commit();
         } catch (HibernateException e) {
             if (tx != null) {

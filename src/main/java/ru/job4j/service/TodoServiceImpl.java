@@ -33,4 +33,20 @@ public class TodoServiceImpl implements TodoService {
         }
         return result;
     }
+
+    @Override
+    public boolean setDone(long id, boolean flag) {
+        boolean result = false;
+        Item item = itemDao.findById(id);
+        if (item != null) {
+            item.setDone(flag);
+            try {
+                itemDao.update(item);
+            } catch (HibernateException e) {
+                logger.error("Can't update item with id={}", id, e);
+            }
+            result = true;
+        }
+        return result;
+    }
 }

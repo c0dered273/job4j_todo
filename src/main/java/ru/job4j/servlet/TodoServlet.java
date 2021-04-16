@@ -18,12 +18,27 @@ public class TodoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
+        String id = req.getParameter("id");
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
         String json = "";
         TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
         if ("getAll".equals(action)) {
             json = todoService.getAllItemsJsonString();
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
+        }
+        if ("setDone".equals(action) && id != null) {
+            try {
+                todoService.setDone(Long.parseLong(id), true);
+            } catch (NumberFormatException e) {
+                logger.error("Id parsing error. Id={}", id);
+            }
+        }
+        if ("setUndone".equals(action) && id != null) {
+            try {
+                todoService.setDone(Long.parseLong(id), false);
+            } catch (NumberFormatException e) {
+                logger.error("Id parsing error. Id={}", id);
+            }
         }
         try {
             PrintWriter out = resp.getWriter();
