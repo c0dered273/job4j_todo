@@ -82,7 +82,7 @@ public class ItemDaoImpl implements ItemDao {
             return result;
         } catch (Exception e) {
             if (transaction != null) {
-                transaction.commit();
+                transaction.rollback();
             }
             throw e;
         }
