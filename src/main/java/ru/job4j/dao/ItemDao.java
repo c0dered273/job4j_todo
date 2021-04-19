@@ -13,5 +13,7 @@ public interface ItemDao {
 
     List<Item> findAll();
 
+    List<Item> findAllUndone();
+
     Item findById(long id);
 }

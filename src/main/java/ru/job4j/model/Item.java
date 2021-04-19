@@ -21,9 +21,8 @@ public class Item {
     protected Item() {
     }
 
-    public static Item of(long id, String description, Timestamp created, boolean done) {
+    public static Item of(String description, Timestamp created, boolean done) {
         Item item = new Item();
-        item.setId(id);
         item.setDescription(description);
         item.setCreated(created);
         item.setDone(done);

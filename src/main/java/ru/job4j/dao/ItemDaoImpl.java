@@ -8,6 +8,7 @@ import ru.job4j.model.Item;
 import ru.job4j.util.HibernateUtil;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Хранение записей в базе данных
@@ -17,80 +18,73 @@ public class ItemDaoImpl implements ItemDao {
 
     @Override
     public void save(Item item) {
-        Transaction tx = null;
-        try (Session session = sf.openSession()) {
-            tx = session.beginTransaction();
-            session.save(item);
-            tx.commit();
-        } catch (HibernateException e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        }
+        this.tx(
+                session -> {
+                    session.save(item);
+                    return true;
+                }
+        );
     }
 
     @Override
     public void update(Item item) {
-        Transaction tx = null;
-        try (Session session = sf.openSession()) {
-            tx = session.beginTransaction();
-            session.update(item);
-            tx.commit();
-        } catch (HibernateException e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        }
+        this.tx(
+                session -> {
+                    session.update(item);
+                    return true;
+                }
+        );
     }
 
     @Override
     public void delete(Item item) {
-        Transaction tx = null;
-        try (Session session = sf.openSession()) {
-            tx = session.beginTransaction();
-            session.delete(item);
-            tx.commit();
-        } catch (HibernateException e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        }
+        this.tx(
+                session -> {
+                    session.delete(item);
+                    return true;
+                }
+        );
     }
 
     @Override
     public List<Item> findAll() {
-        List<Item> result;
-        Transaction tx = null;
-        try (Session session = sf.openSession()) {
-            tx = session.beginTransaction();
-            result = session.createQuery("from ru.job4j.model.Item i order by i.done", Item.class).list();
-            tx.commit();
-        } catch (HibernateException e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        }
-        return result;
+        return this.tx(
+                session -> session.createQuery(
+                        "from ru.job4j.model.Item i order by i.done", Item.class)
+                        .list()
+                );
+    }
+
+    @Override
+    public List<Item> findAllUndone() {
+        return this.tx(
+                session -> session.createQuery(
+                        "from ru.job4j.model.Item i where i.done = :isDone", Item.class)
+                        .setParameter("isDone", false)
+                        .list()
+        );
     }
 
     @Override
     public Item findById(long id) {
-        Item result;
-        Transaction tx = null;
+        return this.tx(
+                session -> session.get(Item.class, id)
+        );
+    }
+
+    private <T> T tx(final Function<Session, T> command) {
+        T result;
+        Transaction transaction = null;
         try (Session session = sf.openSession()) {
-            tx = session.beginTransaction();
-            result = session.get(Item.class, id);
-            tx.commit();
-        } catch (HibernateException e) {
-            if (tx != null) {
-                tx.rollback();
+            transaction = session.beginTransaction();
+            result = command.apply(session);
+            transaction.commit();
+            return result;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.commit();
             }
             throw e;
         }
-        return result;
     }
 }

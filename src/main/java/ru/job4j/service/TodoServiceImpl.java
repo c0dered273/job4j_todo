@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import ru.job4j.dao.ItemDao;
 import ru.job4j.model.Item;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 public class TodoServiceImpl implements TodoService {
@@ -20,18 +22,12 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public String getAllItemsJsonString() {
-        String result = "";
-        ObjectMapper mapper = new ObjectMapper();
-        List<Item> allItems;
-        try {
-            allItems = itemDao.findAll();
-            result = mapper.writeValueAsString(allItems);
-        } catch (HibernateException e) {
-            logger.error("Can't get all items from DB", e);
-        } catch (JsonProcessingException e) {
-            logger.error("Can't map list of items to json", e);
-        }
-        return result;
+        return getItems(false);
+    }
+
+    @Override
+    public String getAllUndoneJsonString() {
+        return getItems(true);
     }
 
     @Override
@@ -46,6 +42,38 @@ public class TodoServiceImpl implements TodoService {
                 logger.error("Can't update item with id={}", id, e);
             }
             result = true;
+        }
+        return result;
+    }
+
+    @Override
+    public boolean newTask(String description) {
+        boolean result = false;
+        Item item = Item.of(description, Timestamp.from(Instant.now()), false);
+        try {
+            itemDao.save(item);
+            result = true;
+        } catch (Exception e) {
+            logger.error("Can't save new item. Item={}", item, e);
+        }
+        return result;
+    }
+
+    private String getItems(boolean isUndone) {
+        String result = "";
+        ObjectMapper mapper = new ObjectMapper();
+        List<Item> allItems;
+        try {
+            if (isUndone) {
+                allItems = itemDao.findAllUndone();
+            } else {
+                allItems = itemDao.findAll();
+            }
+            result = mapper.writeValueAsString(allItems);
+        } catch (HibernateException e) {
+            logger.error("Can't get all items from DB", e);
+        } catch (JsonProcessingException e) {
+            logger.error("Can't map list of items to json", e);
         }
         return result;
     }

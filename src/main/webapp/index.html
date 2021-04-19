@@ -16,55 +16,96 @@
 </head>
 <body>
 <div class="container">
+    <form class="mb-5" action="http://localhost:8080/todo/item" method="post" id="newTaskForm">
+        <h4 class="mb-1">Create new task</h4>
+        <div class="form-group">
+            <label for="descTextarea">Description</label>
+            <textarea class="form-control" id="descTextarea" rows="2" name="description"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">New</button>
+    </form>
+    <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" value="" id="viewAllCheckbox">
+        <label class="form-check-label" for="viewAllCheckbox">
+            View all tasks
+        </label>
+    </div>
     <table class="table" id="todoTable">
         <caption></caption>
         <thead>
         <tr>
-            <th scope="col">Done</th>
-            <th scope="col">Description</th>
-            <th scope="col">Date</th>
+            <th scope="col" style="width: 8%" class="text-center">Done</th>
+            <th scope="col" style="width: 72%">Description</th>
+            <th scope="col" style="width: 20%">Date</th>
         </tr>
         </thead>
         <tbody id="todoBody">
         </tbody>
     </table>
 </div>
-
 <script>
+    let viewItems;
+
     $(document).ready(function () {
-        fillTodoList();
+        viewItems = "viewUndone";
+        setViewAll();
+        viewTodoTable();
     });
 
     $(document).ajaxComplete(function() {
-        $(".form-check-input").change(function () {
+        $(".is-done-check").change(function () {
             if (this.checked) {
                 $.ajax({
                     url: 'http://localhost:8080/todo/item?action=setDone&id=' + $(this).data("id")
+                }).done(function () {
+                    viewTodoTable();
                 });
             } else {
                 $.ajax({
                     url: 'http://localhost:8080/todo/item?action=setUndone&id=' + $(this).data("id")
+                }).done(function () {
+                    viewTodoTable();
                 });
             }
-            location.reload();
         });
     });
 
-    function fillTodoList() {
-        let url = "http://localhost:8080/todo/item?action=getAll";
+    function setViewAll() {
+        $('#viewAllCheckbox').change(function () {
+            if (this.checked) {
+                viewItems = "viewAll";
+            } else {
+                viewItems = "viewUndone";
+            }
+            viewTodoTable();
+        });
+    }
+
+    function viewTodoTable() {
+        fillTodoTable(viewItems);
+    }
+
+    function fillTodoTable(flag) {
+        let url;
+        if (flag === "viewAll") {
+            url = "http://localhost:8080/todo/item?action=getAll";
+        }
+        if (flag === "viewUndone") {
+            url = "http://localhost:8080/todo/item?action=getAllUndone";
+        }
         $.getJSON(url, function (data) {
             $('#todoBody').empty();
             $.each(data, function (index, value) {
                 let checkBox = "<div class=\"form-check\">" +
-                        "<input class=\"form-check-input position-static\" type=\"checkbox\" " +
+                        "<input class=\"form-check-input position-static is-done-check\" type=\"checkbox\" " +
                         "id=\"checkbox" + value.id + "\" data-id=\"" + value.id + "\" value=\"doneVal\">" +
                         "</div>";
                 let tableRow = "<tr><" +
-                    "td>" + checkBox + "</td>" +
+                    "td class=\"text-center\">" + checkBox + "</td>" +
                     "<td id='desc" + value.id + "'>" + value.description + "</td>" +
                     "<td id='date" + value.id + "'>" + new Date(value.created).toDateString() + "</td>" +
                     "</tr>";
-                $('#todoBody').append(tableRow);
+                $('#todoBody').append(tableRow).hide().fadeIn(500);
                 if (value.done) {
                     $('#checkbox' + value.id).prop('checked', true);
                     $('#desc' + value.id).wrapInner('<s></s>');

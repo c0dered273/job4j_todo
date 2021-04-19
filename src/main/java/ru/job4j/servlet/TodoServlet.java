@@ -21,10 +21,13 @@ public class TodoServlet extends HttpServlet {
         String id = req.getParameter("id");
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        String json = "";
+        String json = "{\"response\":\"ok\"}";
         TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
         if ("getAll".equals(action)) {
             json = todoService.getAllItemsJsonString();
+        }
+        if ("getAllUndone".equals(action)) {
+            json = todoService.getAllUndoneJsonString();
         }
         if ("setDone".equals(action) && id != null) {
             try {
@@ -46,6 +49,18 @@ public class TodoServlet extends HttpServlet {
             out.flush();
         } catch (IOException e) {
             logger.error("Servlet writer error", e);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String description = req.getParameter("description");
+        TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
+        todoService.newTask(description);
+        try {
+            resp.sendRedirect(req.getContextPath());
+        } catch (IOException e) {
+            logger.error("Redirect error", e);
         }
     }
 }
