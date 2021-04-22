@@ -16,7 +16,12 @@
 </head>
 <body>
 <div class="container">
-    <form class="mb-5" action="http://localhost:8080/todo/item" method="post" id="newTaskForm">
+    <ul class="nav justify-content-end">
+        <li class="nav-item">
+            <a class="nav-link" id="navUserName" href="/todo/auth.do?action=logout">Logout</a>
+        </li>
+    </ul>
+    <form class="mb-5" action="/todo/item.do" method="post" id="newTaskForm">
         <h4 class="mb-1">Create new task</h4>
         <div class="form-group">
             <label for="descTextarea">Description</label>
@@ -50,19 +55,22 @@
         viewItems = "viewUndone";
         setViewAll();
         viewTodoTable();
+        getUserInfo();
     });
 
     $(document).ajaxComplete(function() {
         $(".is-done-check").change(function () {
             if (this.checked) {
                 $.ajax({
-                    url: 'http://localhost:8080/todo/item?action=setDone&id=' + $(this).data("id")
+                    dataType: "json",
+                    url: '/todo/item.do?action=setDone&id=' + $(this).data("id")
                 }).done(function () {
                     viewTodoTable();
                 });
             } else {
                 $.ajax({
-                    url: 'http://localhost:8080/todo/item?action=setUndone&id=' + $(this).data("id")
+                    dataType: "json",
+                    url: '/todo/item.do?action=setUndone&id=' + $(this).data("id")
                 }).done(function () {
                     viewTodoTable();
                 });
@@ -88,18 +96,21 @@
     function fillTodoTable(flag) {
         let url;
         if (flag === "viewAll") {
-            url = "http://localhost:8080/todo/item?action=getAll";
+            url = "/todo/item.do?action=getAll";
         }
         if (flag === "viewUndone") {
-            url = "http://localhost:8080/todo/item?action=getAllUndone";
+            url = "/todo/item.do?action=getAllUndone";
         }
-        $.getJSON(url, function (data) {
+        $.ajax({
+            dataType: "json",
+            url: url
+        }).done(function (data) {
             $('#todoBody').empty();
             $.each(data, function (index, value) {
                 let checkBox = "<div class=\"form-check\">" +
-                        "<input class=\"form-check-input position-static is-done-check\" type=\"checkbox\" " +
-                        "id=\"checkbox" + value.id + "\" data-id=\"" + value.id + "\" value=\"doneVal\">" +
-                        "</div>";
+                    "<input class=\"form-check-input position-static is-done-check\" type=\"checkbox\" " +
+                    "id=\"checkbox" + value.id + "\" data-id=\"" + value.id + "\" value=\"doneVal\">" +
+                    "</div>";
                 let tableRow = "<tr><" +
                     "td class=\"text-center\">" + checkBox + "</td>" +
                     "<td id='desc" + value.id + "'>" + value.description + "</td>" +
@@ -112,6 +123,15 @@
                     $('#date' + value.id).wrapInner('<s></s>');
                 }
             });
+        });
+    }
+
+    function getUserInfo() {
+        $.ajax({
+            dataType: "json",
+            url: "/todo/auth.do?action=getCurrentUser"
+        }).done(function (data) {
+            $('#navUserName').html(data.name + " | Logout");
         });
     }
 </script>

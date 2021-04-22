@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.job4j.dao.ItemDao;
 import ru.job4j.model.Item;
-
+import ru.job4j.model.User;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -21,19 +21,19 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public String getAllItemsJsonString() {
-        return getItems(false);
+    public String getAllItemsJsonString(User user) {
+        return getItems(user,false);
     }
 
     @Override
-    public String getAllUndoneJsonString() {
-        return getItems(true);
+    public String getAllUndoneJsonString(User user) {
+        return getItems(user, true);
     }
 
     @Override
     public boolean setDone(long id, boolean flag) {
-        boolean result = false;
-        Item item = itemDao.findById(id);
+        var result = false;
+        var item = itemDao.findById(id);
         if (item != null) {
             item.setDone(flag);
             try {
@@ -47,9 +47,9 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public boolean newTask(String description) {
-        boolean result = false;
-        Item item = Item.of(description, Timestamp.from(Instant.now()), false);
+    public boolean newTask(String description, User user) {
+        var result = false;
+        var item = Item.of(description, Timestamp.from(Instant.now()), false, user);
         try {
             itemDao.save(item);
             result = true;
@@ -59,15 +59,15 @@ public class TodoServiceImpl implements TodoService {
         return result;
     }
 
-    private String getItems(boolean isUndone) {
-        String result = "";
-        ObjectMapper mapper = new ObjectMapper();
+    private String getItems(User user, boolean isUndone) {
+        var result = "";
+        var mapper = new ObjectMapper();
         List<Item> allItems;
         try {
             if (isUndone) {
-                allItems = itemDao.findAllUndone();
+                allItems = itemDao.findAllUndone(user);
             } else {
-                allItems = itemDao.findAll();
+                allItems = itemDao.findAll(user);
             }
             result = mapper.writeValueAsString(allItems);
         } catch (HibernateException e) {

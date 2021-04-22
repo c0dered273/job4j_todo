@@ -1,10 +1,11 @@
 package ru.job4j.dao;
 
 import ru.job4j.model.Item;
+import ru.job4j.model.User;
 
 import java.util.List;
 
-public interface ItemDao {
+public interface ItemDao extends Dao {
     void save(Item item);
 
     void update(Item item);
@@ -13,7 +14,11 @@ public interface ItemDao {
 
     List<Item> findAll();
 
+    List<Item> findAll(User user);
+
     List<Item> findAllUndone();
+
+    List<Item> findAllUndone(User user);
 
     Item findById(long id);
 }

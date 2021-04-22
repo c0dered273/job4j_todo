@@ -3,9 +3,10 @@ package ru.job4j.servlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.job4j.dao.ItemDaoImpl;
+import ru.job4j.model.User;
 import ru.job4j.service.TodoService;
 import ru.job4j.service.TodoServiceImpl;
-import javax.servlet.ServletException;
+import ru.job4j.util.ServletUtils;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,18 +17,23 @@ public class TodoServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(TodoServlet.class);
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        var user = (User) req.getSession().getAttribute("user");
         String action = req.getParameter("action");
         String id = req.getParameter("id");
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        String json = "{\"response\":\"ok\"}";
+        var json = "{\"response\":\"ok\"}";
         TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
+        if (user == null) {
+            ServletUtils.redirectTo("/", req, resp);
+            return;
+        }
         if ("getAll".equals(action)) {
-            json = todoService.getAllItemsJsonString();
+            json = todoService.getAllItemsJsonString(user);
         }
         if ("getAllUndone".equals(action)) {
-            json = todoService.getAllUndoneJsonString();
+            json = todoService.getAllUndoneJsonString(user);
         }
         if ("setDone".equals(action) && id != null) {
             try {
@@ -53,14 +59,15 @@ public class TodoServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         String description = req.getParameter("description");
-        TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
-        todoService.newTask(description);
-        try {
-            resp.sendRedirect(req.getContextPath());
-        } catch (IOException e) {
-            logger.error("Redirect error", e);
+        var user = (User) req.getSession().getAttribute("user");
+        if (user == null) {
+            ServletUtils.redirectTo("/", req, resp);
+            return;
         }
+        TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
+        todoService.newTask(description, user);
+        ServletUtils.redirectTo("/", req, resp);
     }
 }
