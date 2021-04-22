@@ -4,7 +4,7 @@ import ru.job4j.model.Item;
 
 import java.util.List;
 
-public interface ItemDao {
+public interface ItemDao extends Dao {
     void save(Item item);
 
     void update(Item item);

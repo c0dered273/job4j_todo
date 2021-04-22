@@ -1,0 +1,17 @@
+package ru.job4j.dao;
+
+import ru.job4j.model.User;
+
+import java.util.List;
+
+public interface UserDao extends Dao {
+    void save(User user);
+
+    void update(User user);
+
+    void delete(User user);
+
+    List<User> findAll();
+
+    User findById(long id);
+}

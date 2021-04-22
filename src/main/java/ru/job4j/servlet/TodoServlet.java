@@ -3,9 +3,9 @@ package ru.job4j.servlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.job4j.dao.ItemDaoImpl;
+import ru.job4j.model.User;
 import ru.job4j.service.TodoService;
 import ru.job4j.service.TodoServiceImpl;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,12 +16,12 @@ public class TodoServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(TodoServlet.class);
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         String action = req.getParameter("action");
         String id = req.getParameter("id");
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        String json = "{\"response\":\"ok\"}";
+        var json = "{\"response\":\"ok\"}";
         TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
         if ("getAll".equals(action)) {
             json = todoService.getAllItemsJsonString();
@@ -53,10 +53,11 @@ public class TodoServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         String description = req.getParameter("description");
+        User user = (User) req.getSession().getAttribute("user");
         TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
-        todoService.newTask(description);
+        todoService.newTask(description, user);
         try {
             resp.sendRedirect(req.getContextPath());
         } catch (IOException e) {

@@ -14,7 +14,7 @@
 
     <servlet-mapping>
         <servlet-name>TodoServlet</servlet-name>
-        <url-pattern>/item</url-pattern>
+        <url-pattern>/item.do</url-pattern>
     </servlet-mapping>
 
     <session-config>
