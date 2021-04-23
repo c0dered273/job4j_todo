@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 import ru.job4j.model.User;
 import ru.job4j.util.HibernateUtil;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDaoImpl implements UserDao {
     private final SessionFactory sf = HibernateUtil.getSessionFactory();
@@ -40,7 +41,22 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User findById(long id) {
-        return transaction(session -> session.get(User.class, id), sf);
+    public Optional<User> findById(long id) {
+        return Optional.ofNullable(transaction(session -> session.get(User.class, id), sf));
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return transaction(session -> {
+            User rsl = null;
+            List<User> result = session.createQuery(
+                    "from ru.job4j.model.User u where u.email = :email", User.class)
+                    .setParameter("email", email)
+                    .list();
+            if (!result.isEmpty()) {
+                rsl = result.get(0);
+            }
+            return Optional.ofNullable(rsl);
+        }, sf);
     }
 }
