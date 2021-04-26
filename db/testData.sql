@@ -1,4 +1,4 @@
-INSERT INTO users(name, email, password) VALUES ('admin', 'admin@local', 'a00e4d3b352e9d11979549b9eef5dc951592f594488451e6cd86fdc4bce76a53');
+INSERT INTO users(name, email, password) VALUES ('root', 'root@local', 'a00e4d3b352e9d11979549b9eef5dc951592f594488451e6cd86fdc4bce76a53');
 INSERT INTO users(name, email, password) VALUES ('user', 'user@local', '8ac76453d769d4fd14b3f41ad4933f9bd64321972cd002de9b847e117435b08b');
 
 INSERT INTO items(description, created, done, user_id)

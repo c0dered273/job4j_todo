@@ -2,6 +2,7 @@ package ru.job4j.dao;
 
 import org.hibernate.SessionFactory;
 import ru.job4j.model.Item;
+import ru.job4j.model.User;
 import ru.job4j.util.HibernateUtil;
 import java.util.List;
 
@@ -43,11 +44,28 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     @Override
+    public List<Item> findAll(User user) {
+        return transaction(session -> session.createQuery(
+                "from ru.job4j.model.Item i where i.user = :user order by i.done", Item.class)
+                .setParameter("user", user)
+                .list(), sf);
+    }
+
+    @Override
     public List<Item> findAllUndone() {
         return transaction(session -> session.createQuery(
                    "from ru.job4j.model.Item i where i.done = :isDone", Item.class)
                    .setParameter("isDone", false)
                    .list(), sf);
+    }
+
+    @Override
+    public List<Item> findAllUndone(User user) {
+        return transaction(session -> session.createQuery(
+                "from ru.job4j.model.Item i where i.user = :user and i.done = :isDone", Item.class)
+                .setParameter("user", user)
+                .setParameter("isDone", false)
+                .list(), sf);
     }
 
     @Override

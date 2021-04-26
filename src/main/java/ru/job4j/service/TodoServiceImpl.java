@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import ru.job4j.dao.ItemDao;
 import ru.job4j.model.Item;
 import ru.job4j.model.User;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -22,13 +21,13 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public String getAllItemsJsonString() {
-        return getItems(false);
+    public String getAllItemsJsonString(User user) {
+        return getItems(user,false);
     }
 
     @Override
-    public String getAllUndoneJsonString() {
-        return getItems(true);
+    public String getAllUndoneJsonString(User user) {
+        return getItems(user, true);
     }
 
     @Override
@@ -60,15 +59,15 @@ public class TodoServiceImpl implements TodoService {
         return result;
     }
 
-    private String getItems(boolean isUndone) {
+    private String getItems(User user, boolean isUndone) {
         var result = "";
         var mapper = new ObjectMapper();
         List<Item> allItems;
         try {
             if (isUndone) {
-                allItems = itemDao.findAllUndone();
+                allItems = itemDao.findAllUndone(user);
             } else {
-                allItems = itemDao.findAll();
+                allItems = itemDao.findAll(user);
             }
             result = mapper.writeValueAsString(allItems);
         } catch (HibernateException e) {
