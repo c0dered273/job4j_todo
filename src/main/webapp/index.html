@@ -40,7 +40,8 @@
         <thead>
         <tr>
             <th scope="col" style="width: 8%" class="text-center">Done</th>
-            <th scope="col" style="width: 72%">Description</th>
+            <th scope="col" style="width: 10%">Owner</th>
+            <th scope="col" style="width: 62%">Description</th>
             <th scope="col" style="width: 20%">Date</th>
         </tr>
         </thead>
@@ -113,6 +114,7 @@
                     "</div>";
                 let tableRow = "<tr><" +
                     "td class=\"text-center\">" + checkBox + "</td>" +
+                    "<td id='owner" + value.id + "'>" + value.user.name + "</td>" +
                     "<td id='desc" + value.id + "'>" + value.description + "</td>" +
                     "<td id='date" + value.id + "'>" + new Date(value.created).toDateString() + "</td>" +
                     "</tr>";
@@ -131,7 +133,7 @@
             dataType: "json",
             url: "/todo/auth.do?action=getCurrentUser"
         }).done(function (data) {
-            $('#navUserName').html(data.name + " | Logout");
+            $('#navUserName').html(data.email + " | Logout");
         });
     }
 </script>

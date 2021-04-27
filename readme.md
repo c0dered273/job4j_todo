@@ -3,10 +3,12 @@
 ### ToDo list web-app
 
 #### Screenshots
-![screenshot1](images/index_undone.png)
+![screenshot1](images/todo_login.png)
 
-![screenshot1](images/index_all.png)
+![screenshot1](images/todo_index.png)
 
-![screenshot1](images/index_addnew.png)
+![screenshot1](images/todo_viewall.png)
 
-![screenshot1](images/index_checked.png)
+![screenshot1](images/todo_newitem.png)
+
+![screenshot1](images/todo_reguser.png)
