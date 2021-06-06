@@ -9,6 +9,4 @@
 
 ![screenshot1](images/todo_viewall.png)
 
-![screenshot1](images/todo_newitem.png)
-
 ![screenshot1](images/todo_reguser.png)

@@ -166,9 +166,14 @@
     }
 
     function fillCategoriesList(data) {
+        let fstLine = true;
         $('#categories-list').empty();
         $.each(data, function (index, value) {
             let row = '<option value="' + value.id +'">' + value.name + '</option>';
+            if (fstLine) {
+                row = '<option selected value="' + value.id +'">' + value.name + '</option>';
+                fstLine = false;
+            }
             $('#categories-list').append(row);
         });
     }
