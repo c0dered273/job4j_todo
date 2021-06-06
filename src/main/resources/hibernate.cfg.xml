@@ -8,7 +8,7 @@
         <property name="hibernate.connection.url">jdbc:postgresql://172.16.16.100:5432/todo</property>
         <property name="hibernate.connection.username">todo</property>
         <property name="hibernate.connection.password">todo</property>
-        <property name="hibernate.connection.pool_size">1</property>
+        <property name="hibernate.connection.pool_size">10</property>
         <property name="hibernate.current_session_context_class">thread</property>
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.dialect">org.hibernate.dialect.ProgressDialect</property>

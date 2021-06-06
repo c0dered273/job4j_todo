@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static ru.job4j.util.ServletUtils.*;
+
 public class AuthServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(AuthServlet.class);
 
@@ -22,11 +24,12 @@ public class AuthServlet extends HttpServlet {
         String action = req.getParameter("action");
         if ("getCurrentUser".equals(action)) {
             returnCurrentUser(req, resp);
+            return;
         }
         if ("logout".equals(action)) {
             req.getSession().setAttribute("user", null);
-            ServletUtils.forwardTo("login.html", req, resp);
         }
+        ServletUtils.forwardTo("/login.html", req, resp);
     }
 
     @Override
@@ -42,7 +45,7 @@ public class AuthServlet extends HttpServlet {
         } else {
             logger.error("Email or password is null");
         }
-       ServletUtils.redirectTo("/", req, resp);
+       ServletUtils.redirectTo(INDEX_PAGE, req, resp);
     }
 
     private void validateUser(User user, String password, HttpServletRequest req) {
