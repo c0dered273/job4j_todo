@@ -39,14 +39,23 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public List<Item> findAll() {
         return transaction(session -> session.createQuery(
-                   "from ru.job4j.model.Item i order by i.done", Item.class)
+                   "select distinct i " +
+                           "from ru.job4j.model.Item i " +
+                           "join fetch i.categories c " +
+                           "order by i.done",
+                Item.class)
                    .list(), sf);
     }
 
     @Override
     public List<Item> findAll(User user) {
         return transaction(session -> session.createQuery(
-                "from ru.job4j.model.Item i where i.user = :user order by i.done", Item.class)
+                "select distinct i " +
+                        "from ru.job4j.model.Item i " +
+                        "join fetch i.categories c " +
+                        "where i.user = :user " +
+                        "order by i.done",
+                Item.class)
                 .setParameter("user", user)
                 .list(), sf);
     }
@@ -54,7 +63,11 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public List<Item> findAllUndone() {
         return transaction(session -> session.createQuery(
-                   "from ru.job4j.model.Item i where i.done = :isDone", Item.class)
+                   "select distinct i " +
+                           "from ru.job4j.model.Item i " +
+                           "join fetch i.categories c " +
+                           "where i.done = :isDone",
+                Item.class)
                    .setParameter("isDone", false)
                    .list(), sf);
     }
@@ -62,7 +75,11 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public List<Item> findAllUndone(User user) {
         return transaction(session -> session.createQuery(
-                "from ru.job4j.model.Item i where i.user = :user and i.done = :isDone", Item.class)
+                "select distinct i " +
+                        "from ru.job4j.model.Item i " +
+                        "join fetch i.categories c " +
+                        "where i.user = :user and i.done = :isDone",
+                Item.class)
                 .setParameter("user", user)
                 .setParameter("isDone", false)
                 .list(), sf);

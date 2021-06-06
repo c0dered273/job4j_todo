@@ -2,8 +2,12 @@ package ru.job4j.servlet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.job4j.dao.CategoryDaoImpl;
 import ru.job4j.dao.ItemDaoImpl;
+import ru.job4j.model.Category;
 import ru.job4j.model.User;
+import ru.job4j.service.CategoryService;
+import ru.job4j.service.CategoryServiceImpl;
 import ru.job4j.service.TodoService;
 import ru.job4j.service.TodoServiceImpl;
 import ru.job4j.util.ServletUtils;
@@ -12,6 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import static ru.job4j.util.ServletUtils.*;
 
 public class TodoServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(TodoServlet.class);
@@ -25,10 +33,6 @@ public class TodoServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
         var json = "{\"response\":\"ok\"}";
         TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
-        if (user == null) {
-            ServletUtils.redirectTo("/", req, resp);
-            return;
-        }
         if ("getAll".equals(action)) {
             json = todoService.getAllItemsJsonString(user);
         }
@@ -60,14 +64,17 @@ public class TodoServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        String description = req.getParameter("description");
+        setReqEncodingUtf8(req);
+        var description = req.getParameter("description");
         var user = (User) req.getSession().getAttribute("user");
+        var categories = req.getParameterValues("categories");
         if (user == null) {
-            ServletUtils.redirectTo("/", req, resp);
+            ServletUtils.redirectTo(INDEX_PAGE, req, resp);
             return;
         }
         TodoService todoService = new TodoServiceImpl(new ItemDaoImpl());
-        todoService.newTask(description, user);
-        ServletUtils.redirectTo("/", req, resp);
+        CategoryService cs = new CategoryServiceImpl(new CategoryDaoImpl());
+        todoService.newTask(description, user, cs.getCategoriesFromIdArray(categories));
+        ServletUtils.redirectTo(INDEX_PAGE, req, resp);
     }
 }

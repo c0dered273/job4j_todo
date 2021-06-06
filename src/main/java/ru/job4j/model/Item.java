@@ -2,6 +2,8 @@ package ru.job4j.model;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -21,15 +23,19 @@ public class Item {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Category> categories = new ArrayList<>();
+
     protected Item() {
     }
 
-    public static Item of(String description, Timestamp created, boolean done, User user) {
+    public static Item of(String description, Timestamp created, boolean done, User user, List<Category> categories) {
         var item = new Item();
         item.setDescription(description);
         item.setCreated(created);
         item.setDone(done);
         item.setUser(user);
+        item.setCategories(categories);
         return item;
     }
 
@@ -71,6 +77,18 @@ public class Item {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
+    public void addCategory(Category category) {
+        this.getCategories().add(category);
     }
 
     @Override

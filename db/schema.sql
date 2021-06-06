@@ -12,3 +12,8 @@ CREATE TABLE IF NOT EXISTS items (
     done BOOLEAN,
     user_id INT NOT NULL REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR
+);

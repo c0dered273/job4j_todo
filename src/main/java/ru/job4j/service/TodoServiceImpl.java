@@ -6,6 +6,7 @@ import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.job4j.dao.ItemDao;
+import ru.job4j.model.Category;
 import ru.job4j.model.Item;
 import ru.job4j.model.User;
 import java.sql.Timestamp;
@@ -47,9 +48,10 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public boolean newTask(String description, User user) {
+    public boolean newTask(String description, User user, List<Category> categories) {
         var result = false;
-        var item = Item.of(description, Timestamp.from(Instant.now()), false, user);
+        if (categories.isEmpty()) return false;
+        var item = Item.of(description, Timestamp.from(Instant.now()), false, user, categories);
         try {
             itemDao.save(item);
             result = true;

@@ -15,3 +15,12 @@ VALUES ('User item 01', TO_TIMESTAMP(1614520770), true, (SELECT id FROM users WH
 
 INSERT INTO items(description, created, done, user_id)
 VALUES ('User item 02', CURRENT_TIMESTAMP, false, (SELECT id FROM users WHERE users.name = 'user'));
+
+INSERT INTO categories(name)
+VALUES ('Urgent');
+
+INSERT INTO categories(name)
+VALUES ('Today');
+
+INSERT INTO categories(name)
+VALUES ('This week');

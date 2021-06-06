@@ -21,42 +21,74 @@
             <a class="nav-link" id="navUserName" href="/todo/auth.do?action=logout">Logout</a>
         </li>
     </ul>
-    <form class="mb-5" action="/todo/item.do" method="post" id="newTaskForm">
-        <h4 class="mb-1">Create new task</h4>
-        <div class="form-group">
-            <label for="descTextarea">Description</label>
-            <textarea class="form-control" id="descTextarea" rows="2" name="description"></textarea>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h4 class="card-title">Create new task</h4>
+            <form action="/todo/item.do" method="post" id="newTaskForm">
+                <div class="form-group row">
+                    <div class="col">
+                        <label for="descTextarea">Description</label>
+                    </div>
+                    <div class="col-9">
+                        <textarea class="form-control" id="descTextarea" rows="3" name="description"></textarea>
+                    </div>
+                </div>
+                <div class="form-group row pb-3">
+                    <div class="col">
+                        <label for="categories-list">Select task categories</label>
+                    </div>
+                    <div class="col-6">
+                        <select id="categories-list" class="form-control" name="categories" multiple>
+                        </select>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <button type="submit" class="btn btn-primary">Create new</button>
+                </div>
+            </form>
         </div>
-        <button type="submit" class="btn btn-primary">New</button>
-    </form>
-    <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" value="" id="viewAllCheckbox">
-        <label class="form-check-label" for="viewAllCheckbox">
-            View all tasks
-        </label>
     </div>
-    <table class="table" id="todoTable">
-        <caption></caption>
-        <thead>
-        <tr>
-            <th scope="col" style="width: 8%" class="text-center">Done</th>
-            <th scope="col" style="width: 10%">Owner</th>
-            <th scope="col" style="width: 62%">Description</th>
-            <th scope="col" style="width: 20%">Date</th>
-        </tr>
-        </thead>
-        <tbody id="todoBody">
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title row">
+                <div class="col">
+                    <h4>Tasks</h4>
+                </div>
+                <div class="col">
+                    <div class="form-check float-right">
+                        <input class="form-check-input" type="checkbox" value="" id="viewAllCheckbox">
+                        <label class="form-check-label" for="viewAllCheckbox">
+                            View all tasks
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <table class="table" id="todoTable">
+                <caption></caption>
+                <thead>
+                <tr>
+                    <th scope="col" style="width: 8%" class="text-center">Done</th>
+                    <th scope="col" style="width: 15%">Owner</th>
+                    <th scope="col" style="width: 10%">Category</th>
+                    <th scope="col" style="width: 52%">Description</th>
+                    <th scope="col" style="width: 15%">Date</th>
+                </tr>
+                </thead>
+                <tbody id="todoBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 <script>
     let viewItems;
 
     $(document).ready(function () {
         viewItems = "viewUndone";
-        setViewAll();
-        viewTodoTable();
+        setViewMode();
         getUserInfo();
+        getAllCategories();
+        viewTableWithMode();
     });
 
     $(document).ajaxComplete(function() {
@@ -66,65 +98,106 @@
                     dataType: "json",
                     url: '/todo/item.do?action=setDone&id=' + $(this).data("id")
                 }).done(function () {
-                    viewTodoTable();
+                    viewTableWithMode();
                 });
             } else {
                 $.ajax({
                     dataType: "json",
                     url: '/todo/item.do?action=setUndone&id=' + $(this).data("id")
                 }).done(function () {
-                    viewTodoTable();
+                    viewTableWithMode();
                 });
             }
         });
     });
 
-    function setViewAll() {
+    function setViewMode() {
         $('#viewAllCheckbox').change(function () {
             if (this.checked) {
                 viewItems = "viewAll";
+                viewTableWithMode();
             } else {
                 viewItems = "viewUndone";
+                viewTableWithMode();
             }
-            viewTodoTable();
         });
     }
 
-    function viewTodoTable() {
-        fillTodoTable(viewItems);
+    function viewTableWithMode() {
+        if (viewItems === "viewAll") {
+            getAllTodo();
+        }
+        if (viewItems === "viewUndone") {
+            getAllUndoneTodo();
+        }
     }
 
-    function fillTodoTable(flag) {
-        let url;
-        if (flag === "viewAll") {
-            url = "/todo/item.do?action=getAll";
+    function getCatList(categories) {
+        let retVal = [];
+        for (const el of categories) {
+            retVal.push(el.name);
         }
-        if (flag === "viewUndone") {
-            url = "/todo/item.do?action=getAllUndone";
-        }
+        return retVal.join(", ");
+    }
+
+    function fillTodoTable(data) {
+        $('#todoBody').empty();
+        $.each(data, function (index, value) {
+            let checkBox = "<div class=\"form-check\">" +
+                "<input class=\"form-check-input position-static is-done-check\" type=\"checkbox\" " +
+                "id=\"checkbox" + value.id + "\" data-id=\"" + value.id + "\" value=\"doneVal\">" +
+                "</div>";
+            let tableRow = "<tr><" +
+                "td class=\"text-center\">" + checkBox + "</td>" +
+                "<td id='owner" + value.id + "'>" + value.user.name + "</td>" +
+                "<td id='cat" + value.id + "'>" + getCatList(value.categories) + "</td>" +
+                "<td id='desc" + value.id + "'>" + value.description + "</td>" +
+                "<td id='date" + value.id + "'>" + new Date(value.created).toDateString() + "</td>" +
+                "</tr>";
+            $('#todoBody').append(tableRow).hide().fadeIn(100);
+            if (value.done) {
+                $('#checkbox' + value.id).prop('checked', true);
+                $('#owner' + value.id).wrapInner('<s></s>');
+                $('#cat' + value.id).wrapInner('<s></s>');
+                $('#desc' + value.id).wrapInner('<s></s>');
+                $('#date' + value.id).wrapInner('<s></s>');
+            }
+        });
+    }
+
+    function fillCategoriesList(data) {
+        $('#categories-list').empty();
+        $.each(data, function (index, value) {
+            let row = '<option value="' + value.id +'">' + value.name + '</option>';
+            $('#categories-list').append(row);
+        });
+    }
+
+    function getAllTodo() {
         $.ajax({
             dataType: "json",
-            url: url
+            url: "/todo/item.do?action=getAll"
         }).done(function (data) {
-            $('#todoBody').empty();
-            $.each(data, function (index, value) {
-                let checkBox = "<div class=\"form-check\">" +
-                    "<input class=\"form-check-input position-static is-done-check\" type=\"checkbox\" " +
-                    "id=\"checkbox" + value.id + "\" data-id=\"" + value.id + "\" value=\"doneVal\">" +
-                    "</div>";
-                let tableRow = "<tr><" +
-                    "td class=\"text-center\">" + checkBox + "</td>" +
-                    "<td id='owner" + value.id + "'>" + value.user.name + "</td>" +
-                    "<td id='desc" + value.id + "'>" + value.description + "</td>" +
-                    "<td id='date" + value.id + "'>" + new Date(value.created).toDateString() + "</td>" +
-                    "</tr>";
-                $('#todoBody').append(tableRow).hide().fadeIn(500);
-                if (value.done) {
-                    $('#checkbox' + value.id).prop('checked', true);
-                    $('#desc' + value.id).wrapInner('<s></s>');
-                    $('#date' + value.id).wrapInner('<s></s>');
-                }
-            });
+            fillTodoTable(data);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            alert("Ajax error: getAllTodo()");
+            console.log("jqXHR: " + jqXHR);
+            console.log("textStatus: " + textStatus);
+            console.log("errorThrown: " + errorThrown);
+        });
+    }
+
+    function getAllUndoneTodo() {
+        $.ajax({
+            dataType: "json",
+            url: "/todo/item.do?action=getAllUndone"
+        }).done(function (data) {
+            fillTodoTable(data);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            alert("Ajax error: getAllUndoneTodo()");
+            console.log("jqXHR: " + jqXHR);
+            console.log("textStatus: " + textStatus);
+            console.log("errorThrown: " + errorThrown);
         });
     }
 
@@ -134,6 +207,25 @@
             url: "/todo/auth.do?action=getCurrentUser"
         }).done(function (data) {
             $('#navUserName').html(data.email + " | Logout");
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            alert("Ajax error: getUserInfo()");
+            console.log("jqXHR: " + jqXHR);
+            console.log("textStatus: " + textStatus);
+            console.log("errorThrown: " + errorThrown);
+        });
+    }
+
+    function getAllCategories() {
+        $.ajax({
+            dataType: "json",
+            url: "/todo/categories.do"
+        }).done(function (data) {
+            fillCategoriesList(data);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            alert("Ajax error: getAllCategories()");
+            console.log("jqXHR: " + jqXHR);
+            console.log("textStatus: " + textStatus);
+            console.log("errorThrown: " + errorThrown);
         });
     }
 </script>
