@@ -9,8 +9,7 @@ import ru.job4j.dao.ItemDao;
 import ru.job4j.model.Category;
 import ru.job4j.model.Item;
 import ru.job4j.model.User;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 public class TodoServiceImpl implements TodoService {
@@ -51,7 +50,7 @@ public class TodoServiceImpl implements TodoService {
     public boolean newTask(String description, User user, List<Category> categories) {
         var result = false;
         if (categories.isEmpty()) return false;
-        var item = Item.of(description, Timestamp.from(Instant.now()), false, user, categories);
+        var item = Item.of(description, new Date(System.currentTimeMillis()), false, user, categories);
         try {
             itemDao.save(item);
             result = true;
