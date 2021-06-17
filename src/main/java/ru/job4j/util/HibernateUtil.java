@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Инициализирует и создает SessionFactory, экземпляр один на весь проект.
+ * Инициализирует и создает SessionFactory как синглтон.
  */
 public class HibernateUtil {
     private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
@@ -16,6 +16,11 @@ public class HibernateUtil {
 
     private HibernateUtil() {}
 
+    /**
+     * Возвращает синглтон SessionFactory.
+     *
+     * @return SessionFactory
+     */
     public static SessionFactory getSessionFactory() {
         if (sf == null) {
             final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()

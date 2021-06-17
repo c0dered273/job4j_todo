@@ -1,10 +1,12 @@
 package ru.job4j.dao;
 
-import ru.job4j.model.User;
-
 import java.util.List;
 import java.util.Optional;
+import ru.job4j.model.User;
 
+/**
+ * Методы доступа к сущностям пользователей.
+ */
 public interface UserDao extends Dao {
     void save(User user);
 

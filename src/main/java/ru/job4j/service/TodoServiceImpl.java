@@ -2,6 +2,8 @@ package ru.job4j.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Date;
+import java.util.List;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +11,10 @@ import ru.job4j.dao.ItemDao;
 import ru.job4j.model.Category;
 import ru.job4j.model.Item;
 import ru.job4j.model.User;
-import java.util.Date;
-import java.util.List;
 
+/**
+ * Реализует работу с задачами.
+ */
 public class TodoServiceImpl implements TodoService {
     private static final Logger logger = LoggerFactory.getLogger(TodoServiceImpl.class);
     private final ItemDao itemDao;
@@ -20,16 +23,36 @@ public class TodoServiceImpl implements TodoService {
         this.itemDao = itemDao;
     }
 
+    /**
+     * Возвращает все задачи, принадлежащие указанному пользователю в виде json строки.
+     *
+     * @param user кому принадлежат задачи
+     * @return json строка массив объектов Item
+     */
     @Override
     public String getAllItemsJsonString(User user) {
-        return getItems(user,false);
+        return getItems(user, false);
     }
 
+    /**
+     * Возвращает все незавершенные задачи, принадлежащие указанному пользователю
+     * в виде json строки.
+     *
+     * @param user кому принадлежат задачи
+     * @return json строка массив объектов Item
+     */
     @Override
     public String getAllUndoneJsonString(User user) {
         return getItems(user, true);
     }
 
+    /**
+     * Устанавливает флаг выполнения задачи.
+     *
+     * @param id long id задачи
+     * @param flag true - задача завершена
+     * @return результат изменения состояния задачи
+     */
     @Override
     public boolean setDone(long id, boolean flag) {
         var result = false;
@@ -46,11 +69,23 @@ public class TodoServiceImpl implements TodoService {
         return result;
     }
 
+    /**
+     * Создает новую задачу.
+     *
+     * @param description описание задачи
+     * @param user кто создал
+     * @param categories список категорий задачи
+     * @return результат выполнения
+     */
     @Override
     public boolean newTask(String description, User user, List<Category> categories) {
         var result = false;
-        if (categories.isEmpty()) return false;
-        var item = Item.of(description, new Date(System.currentTimeMillis()), false, user, categories);
+        if (categories.isEmpty()) {
+            return false;
+        }
+        var item = Item.of(
+                description, new Date(System.currentTimeMillis()), false, user, categories
+        );
         try {
             itemDao.save(item);
             result = true;
@@ -60,9 +95,16 @@ public class TodoServiceImpl implements TodoService {
         return result;
     }
 
+    /**
+     * Возвращает json строку с массивом задач.
+     * Если флаг isUndone установлен в true, метод возвращает только невыполненные задачи.
+     *
+     * @param user кому принадлежат задачи
+     * @param isUndone true - незавершенные задачи, false - все задачи
+     * @return json строка с массивом объектов
+     */
     private String getItems(User user, boolean isUndone) {
         var result = "";
-        var mapper = new ObjectMapper();
         List<Item> allItems;
         try {
             if (isUndone) {
@@ -70,7 +112,7 @@ public class TodoServiceImpl implements TodoService {
             } else {
                 allItems = itemDao.findAll(user);
             }
-            result = mapper.writeValueAsString(allItems);
+            result = new ObjectMapper().writeValueAsString(allItems);
         } catch (HibernateException e) {
             logger.error("Can't get all items from DB", e);
         } catch (JsonProcessingException e) {

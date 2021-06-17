@@ -1,11 +1,15 @@
 package ru.job4j.dao;
 
+import java.util.List;
+import java.util.Optional;
 import org.hibernate.SessionFactory;
 import ru.job4j.model.User;
 import ru.job4j.util.HibernateUtil;
-import java.util.List;
-import java.util.Optional;
 
+/**
+ * Реализация доступа к сущностям категорий задач
+ * transaction() - реализация по умолчанию из интерфейса Dao.
+ */
 public class UserDaoImpl implements UserDao {
     private final SessionFactory sf = HibernateUtil.getSessionFactory();
 

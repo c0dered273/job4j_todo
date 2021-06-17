@@ -1,16 +1,20 @@
 package ru.job4j.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
- *
+ * Пользователь.
  */
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -27,6 +31,14 @@ public class User implements Serializable {
     protected User() {
     }
 
+    /**
+     * Возвращает настроенного пользователя.
+     *
+     * @param name имя
+     * @param email почта
+     * @param password пароль
+     * @return пользователь
+     */
     public static User of(String name, String email, String password) {
         var user = new User();
         user.setName(name);
@@ -69,8 +81,12 @@ public class User implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var user = (User) o;
         return id == user.id;
     }
@@ -82,10 +98,10 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                '}';
+        return "User{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", email='" + email + '\''
+                + '}';
     }
 }

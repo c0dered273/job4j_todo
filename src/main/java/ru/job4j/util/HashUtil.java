@@ -1,14 +1,14 @@
 package ru.job4j.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Генерирует sha3-256 хэш без соли.
- * MessageDigest не потокобезопасный
+ * MessageDigest не потокобезопасный, на каждый поток необходимо создавать свой экземпляр.
  */
 public class HashUtil {
     private static final Logger logger = LoggerFactory.getLogger(HashUtil.class);
@@ -18,7 +18,12 @@ public class HashUtil {
         digest = MessageDigest.getInstance("SHA3-256");
     }
 
-    public static HashUtil getInstance() {
+    /**
+     * Возвращает новый экземпляр класса.
+     *
+     * @return HashUtil
+     */
+    public static synchronized HashUtil getInstance() {
         HashUtil result = null;
         try {
             result = new HashUtil();
@@ -28,7 +33,13 @@ public class HashUtil {
         return result;
     }
 
-    public String getHash(String string) {
+    /**
+     * Возвращает sha3-256 хэш виде шестнадцатеричной строки.
+     *
+     * @param string исходная строка
+     * @return хэш
+     */
+    public synchronized String getHash(String string) {
         final byte[] hashBytes = digest.digest(
                 string.getBytes(StandardCharsets.UTF_8)
         );

@@ -1,10 +1,12 @@
 package ru.job4j.dao;
 
+import java.util.List;
 import ru.job4j.model.Item;
 import ru.job4j.model.User;
 
-import java.util.List;
-
+/**
+ * Методы доступа к сущностям задача.
+ */
 public interface ItemDao extends Dao {
     void save(Item item);
 

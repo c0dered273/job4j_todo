@@ -1,13 +1,16 @@
 package ru.job4j.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Вспомогательный класс для сервлетов.
+ */
 public class ServletUtils {
     private static final Logger logger = LoggerFactory.getLogger(ServletUtils.class);
     public static final String INDEX_PAGE = "/index.do";
@@ -15,6 +18,13 @@ public class ServletUtils {
     private ServletUtils() {
     }
 
+    /**
+     * forwardTo.
+     *
+     * @param url куда
+     * @param req req
+     * @param resp resp
+     */
     public static void forwardTo(String url, HttpServletRequest req, HttpServletResponse resp) {
         try {
             req.getRequestDispatcher(url).forward(req, resp);
@@ -23,6 +33,13 @@ public class ServletUtils {
         }
     }
 
+    /**
+     * redirectTo.
+     *
+     * @param url куда
+     * @param req req
+     * @param resp resp
+     */
     public static void redirectTo(String url, HttpServletRequest req, HttpServletResponse resp) {
         try {
             resp.sendRedirect(req.getContextPath() + url);
@@ -31,6 +48,11 @@ public class ServletUtils {
         }
     }
 
+    /**
+     * Устанавливает кодировку UTF-8.
+     *
+     * @param req req
+     */
     public static void setReqEncodingUtf8(HttpServletRequest req) {
         try {
             req.setCharacterEncoding("UTF-8");
